@@ -19,6 +19,9 @@ const languageStrings = {
             ERROR_INVALID_ORIGIN_UNIT: 'Sorry, I cannot convert from that unit of length.',
             SUGGESTION_MESSAGE: "If you want, you can help with other conversions. For example, you can say: 'Convert 3 meters to centimeters.",
             GOODBYE_MESSAGE: 'Goodbye! Have a great day!',
+            HELP_REPROMPT: "How can I assist you?",
+            CANCEL_MESSAGE: "Cancelled!",
+            CANCEL_REPROMPT: "How else can I assist you?"
         }
     },
     es: {
@@ -32,7 +35,9 @@ const languageStrings = {
             ERROR_INVALID_ORIGIN_UNIT: 'Lo siento, no puedo convertir desde esa unidad de longitud.',
             SUGGESTION_MESSAGE: "Si deseas, puedo ayudarte con otras conversiones. Por ejemplo, puedes decir: 'Convierte 3 metros a centímetros'.",
             GOODBYE_MESSAGE: '¡Hasta luego! ¡Que tengas un excelente día!',
-            
+            HELP_REPROMPT: "¿En qué puedo ayudarte?",
+            CANCEL_MESSAGE: "¡Cancelado!",
+            CANCEL_REPROMPT: "¿En qué más puedo ayudarte?"
         }
     }
 }
@@ -176,82 +181,6 @@ const Conversor = {
     },
 };
 
-// const Conversor = {
-//     canHandle(handlerInput) {
-//         return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-//             handlerInput.requestEnvelope.request.intent.name === 'CustomUnitIntent';
-//     },
-//     handle(handlerInput) {
-//         const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-        
-//         const unidadOrigen = handlerInput.requestEnvelope.request.intent.slots.unidad.value;
-//         const unidadDestino = handlerInput.requestEnvelope.request.intent.slots.conversion.value;
-//         const cantidad = handlerInput.requestEnvelope.request.intent.slots.numero.value;
-//         let resultado = 0;
-
-//         switch (unidadOrigen) {
-//             case 'metros':
-//                 switch (unidadDestino) {
-//                     case 'centimetros':
-//                         resultado = cantidad * 100;
-//                         break;
-//                     case 'kilometros':
-//                         resultado = cantidad / 1000;
-//                         break;
-//                     case 'yardas':
-//                         resultado = cantidad * 1.09361;
-//                         break;
-//                     case 'pies':
-//                         resultado = cantidad * 3.28084;
-//                         break;
-//                     case 'pulgadas':
-//                         resultado = cantidad * 39.3701;
-//                         break;
-//                     default:
-//                         return handlerInput.responseBuilder
-//                             // .speak(handlerInput.t('ERROR_INVALID_UNIT'))
-//                             .speak(requestAttributes.t('ERROR_INVALID_UNIT'))
-//                             .reprompt(handlerInput.t('SUGGESTION_MESSAGE'))
-//                             .getResponse();
-//                 }
-//                 break;
-//             default:
-//                 return handlerInput.responseBuilder
-//                     // .speak(handlerInput.t('ERROR_INVALID_ORIGIN_UNIT'))
-//                     .speak(requestAttributes.t('ERROR_INVALID_ORIGIN_UNIT'))
-//                     .getResponse();
-//         }
-
-//         // const speechOutput = handlerInput.t('CONVERSION_RESULT', { cantidad, unidadOrigen, resultado, unidadDestino });
-//         // const speechOutput = requestAttributes.t('CONVERSION_RESULT', cantidad, unidadOrigen, resultado, unidadDestino,);
-//         const speechOutput = requestAttributes.t('CONVERSION_RESULT', cantidad, unidadOrigen, unidadDestino, resultado, unidadDestino,);
-//         // const speechOutput = requestAttributes.t('CONVERSION_RESULT', cantidad, unidadOrigen, unidadDestino, resultado, unidadDestino);
-
-//         return handlerInput.responseBuilder
-//             .speak(speechOutput)
-//             .getResponse();
-//     },
-// };
-
-// const Conversor = {
-//     canHandle(handlerInput) {
-//         return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-//             Alexa.getIntentName(handlerInput.requestEnvelope) === 'CustomUnitIntent';
-//     },
-//     handle(handlerInput) {
-//         const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-//         const cantidadMetros = handlerInput.requestEnvelope.request.intent.slots.numero.value;
-//         const centimetros = cantidadMetros * 100;
-
-//         // const speechOutput = handlerInput.t('CONVERSION_RESULT', { cantidadMetros, centimetros });
-//         // const speechOutput = requestAttributes.t('CONVERSION_RESULT', { cantidadMetros, centimetros });
-//         const speechOutput = requestAttributes.t('CONVERSION_RESULT', cantidadMetros, centimetros );
-
-//         return handlerInput.responseBuilder
-//             .speak(speechOutput)
-//             .getResponse();
-//     },
-// };
 
 const HelloWorldIntentHandler = {
     canHandle(handlerInput) {
@@ -274,7 +203,10 @@ const HelpIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
     },
     handle(handlerInput) {
-        const speakOutput = 'You can say hello to me! How can I help?';
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+        const speakOutput = requestAttributes.t('HELP_REPROMPT');
+        // const speakOutput = 'You can say hello to me! How can I help?';
+        
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -291,11 +223,14 @@ const CancelAndStopIntentHandler = {
     },
     handle(handlerInput) {
         const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-        const speakOutput = requestAttributes.t('GOODBYE_MESSAGE');
+        // const speakOutput = requestAttributes.t('GOODBYE_MESSAGE');
+        const speakOutput = requestAttributes.t('CANCEL_MESSAGE');
+        const pregunta = requestAttributes.t('CANCEL_REPROMPT');
         // const speakOutput = 'Goodbye!';
 
         return handlerInput.responseBuilder
-            .speak(speakOutput)
+            .speak(`${speakOutput}${pregunta}`)
+            .reprompt(pregunta)
             .getResponse();
     }
 };
